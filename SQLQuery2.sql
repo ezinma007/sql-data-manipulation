@@ -52,23 +52,31 @@ SELECT COUNT (e_salary) FROM tblemployees
 SELECT * FROM tblemployees 
 
 
+ALTER TABLE tblemployees add primary key (e_id)
+
 /*Transaction*/
 BEGIN TRY
 
 BEGIN TRANSACTION
 
-INSERT INTO tblemployees VALUES (7, 'Micheal','Nnaji',28, 'male','it',3000000,'2013-11-01')
+
+SELECT * FROM tblemployees with (holdlock) 
+
+SELECT resource_type,request_mode,resource_description FROM sys.dm_tran_locks
+WHERE resource_type<>'DATABASE'
+
+INSERT INTO tblemployees VALUES (7, 'Micheal','Nnaji',28, 'male','it',3000000,'2013-11-01') 
 INSERT INTO tblemployees VALUES (8, 'Samson','Achukwu',28, 'male','it',2500000,'2013-11-01')
 INSERT INTO tblemployees VALUES (9, 'Chinemerem','Samuel',28, 'male','it',500000,'2013-11-01')
 INSERT INTO tblemployees VALUES (10, 'Peter','Nnaji',28, 'male','it',3000000,'2013-11-01')
 INSERT INTO tblemployees VALUES (11, 'Hassan','Nsan',28, 'male','it',1000000,'2013-11-01')
 INSERT INTO tblemployees VALUES (12, 'James','Achukwu',28, 'male','it',2500000,'2013-11-01')
-UPDATE tblemployees SET e_salary = 500000 WHERE e_gender = 'male'
+UPDATE tblemployees SET e_salary = 500000 WHERE e_gender = 'male' 
 UPDATE tblemployees SET e_salary = 1000000 WHERE e_gender = 'female'
 
 
 
-COMMIT TRANSACTION
+ROLLBACK TRANSACTION
 PRINT 'TRANSACTION COMMITTED'
 
 END TRY
@@ -79,3 +87,15 @@ PRINT 'TRANSACTION ROLLEDBACK'
 END CATCH
 
 SELECT * FROM tblemployees
+
+BEGIN TRAN
+
+SELECT * FROM tblemployees with (updlock) 
+
+SELECT resource_type,request_mode,resource_description FROM sys.dm_tran_locks
+WHERE resource_type<>'DATABASE'
+
+rollback
+
+SELECT * FROM sys.all_objects
+
